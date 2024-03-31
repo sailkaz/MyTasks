@@ -1,12 +1,14 @@
-﻿using MyTasks.Core.Models.Domains;
+﻿using MyTasks.Core;
+using MyTasks.Core.Models.Domains;
+using MyTasks.Core.Repositories;
 
 namespace MyTasks.Persistence.Repositories
 {
-    public class CategoryRepository
+    public class CategoryRepository : ICategoryRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IApplicationDbContext _context;
 
-        public CategoryRepository(ApplicationDbContext context)
+        public CategoryRepository(IApplicationDbContext context)
         {
             _context = context;
         }

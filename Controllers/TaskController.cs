@@ -1,25 +1,27 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyTasks.Core.Models;
+using MyTasks.Core.Service;
 using MyTasks.Core.ViewModels;
 using MyTasks.Persistence;
 using MyTasks.Persistence.Extensions;
 using MyTasks.Persistence.Repositories;
+using MyTasks.Persistence.Services;
 
 namespace MyTasks.Controllers
 {
-    //[Authorize]
+    [Authorize]
 
     public class TaskController : Controller
     {
-        private readonly TaskRepository _taskRepository;
-        private readonly CategoryRepository _categoryRepository;
+        private readonly ITaskService _taskService;
+        private readonly ICategoryService _categoryService;
 
 
-        public TaskController(ApplicationDbContext context)
+        public TaskController(ITaskService taskService, ICategoryService categoryService)
         {
-            _taskRepository = new TaskRepository(context);
-            _categoryRepository = new CategoryRepository(context);
+            _taskService = taskService;
+            _categoryService = categoryService;
         }
 
 
@@ -30,8 +32,8 @@ namespace MyTasks.Controllers
             var tasksViewModel = new TasksViewModel
             {
                 FilterTasks = new FilterTasks(),
-                Tasks = _taskRepository.GetTasks(userId),
-                Categories = _categoryRepository.GetCategories()
+                Tasks = _taskService.GetTasks(userId),
+                Categories = _categoryService.GetCategories()
             };
             return View(tasksViewModel);
         }
@@ -42,10 +44,10 @@ namespace MyTasks.Controllers
         {
             var userId = User.GetUserId();
 
-            var tasks = _taskRepository.GetTasks(userId, viewModel.FilterTasks.IsExecuted,
+            var tasks = _taskService.GetTasks(userId, viewModel.FilterTasks.IsExecuted,
                                                  viewModel.FilterTasks.CategoryId, viewModel.FilterTasks.Title);
 
-            return View("_TaskTable", tasks);
+            return PartialView("_TaskTable", tasks);
         }
 
         public IActionResult Task(int taskId = 0)
@@ -54,14 +56,14 @@ namespace MyTasks.Controllers
 
             var task = taskId == 0 ?
                  new Core.Models.Domains.Task { Id = 0, UserId = userId, Term = DateTime.Today } :
-                 _taskRepository.GetTask(taskId, userId);
+                 _taskService.GetTask(taskId, userId);
 
             var taskViewModel = new TaskViewModel
             {
                 Task = task,
                 Heading = taskId == 0 ?
                           "Dodawanie nowego zadania" : "Edycja zadania",
-                Categories = _categoryRepository.GetCategories()
+                Categories = _categoryService.GetCategories()
             };
 
             return View(taskViewModel);
@@ -81,16 +83,16 @@ namespace MyTasks.Controllers
                     Task = task,
                     Heading = task.Id == 0 ?
                           "Dodawanie nowego zadania" : "Edycja zadania",
-                    Categories = _categoryRepository.GetCategories()
+                    Categories = _categoryService.GetCategories()
                 };
 
                 return View("Task", taskViewModel);
             }
 
             if (task.Id == 0)
-                _taskRepository.Add(task);
+                _taskService.Add(task);
             else
-                _taskRepository.Update(task);
+                _taskService.Update(task);
 
             return RedirectToAction("Tasks");
         }
@@ -101,7 +103,7 @@ namespace MyTasks.Controllers
             try
             {
                 var userId = User.GetUserId();
-                _taskRepository.Delete(taskId, userId);
+                _taskService.Delete(taskId, userId);
             }
             catch (Exception ex)
             {
@@ -118,7 +120,7 @@ namespace MyTasks.Controllers
             try
             {
                 var userId = User.GetUserId();
-                _taskRepository.Finish(taskId, userId);
+                _taskService.Finish(taskId, userId);
             }
             catch (Exception ex)
             {
