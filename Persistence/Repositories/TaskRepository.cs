@@ -45,7 +45,7 @@ namespace MyTasks.Persistence.Repositories
 
         public void Update(Core.Models.Domains.Task task)
         {
-            var taskToUpdate = _context.Tasks.Single(x => x.Id == task.Id && x.UserId == task.UserId);
+            var taskToUpdate = GetTask(task.Id, task.UserId);
             taskToUpdate.Title = task.Title;
             taskToUpdate.Term = task.Term;
             taskToUpdate.Description = task.Description;

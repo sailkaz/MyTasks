@@ -23,6 +23,7 @@ namespace MyTasks.Core.Models.Domains
         [Display(Name = "Kategoria")]
         public int CategoryId { get; set; }
 
+        [Required(ErrorMessage = "Pole termin jest wymagane.")]
         [Display(Name = "Termin")]
         public DateTime? Term {get; set; }
 

@@ -1,0 +1,102 @@
+﻿@*@model IEnumerable<MyTasks.Core.Models.Domains.Category>*@
+@model CategoryViewModel
+@{
+    ViewData["Title"] = "Kategorie";
+}
+
+
+<div class="container">
+
+    <div class="m-lg-2">
+        <h1>Kategorie</h1>
+    </div>  
+
+    <div class="container d-flex mt-5">
+
+        <div id="taskTable" style="width: 800px">
+
+            <table class="table  m-auto table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Nazwa</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Categories.Any())
+                    {
+
+                        @foreach (var category in Model.Categories)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="@Url.Action("Category", "Category",
+                                   new { categoryId = category.Id })"
+                                    class="font-weight-bold">
+                                        @category.Name
+                                    </a>
+                                </td>
+                                <td align="center">
+                                    <button class="btn btn-danger btn-sm"
+                                    onclick="deleteCategory('@category.Id', this)">
+                                        Usuń
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" style="text-align:center">
+                                Nie masz żadnych kategorii!
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+        <div class=" m-auto">
+            <button type="button" class="btn btn-primary btn-lg btn-block"
+                    onclick='window.location.href="@Url.Action("Category", "Category")"' >
+                Dodaj nową kategorię
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+    {
+    <script type="text/javascript">
+
+        function deleteCategory(categoryId, btn) {
+
+            if (!confirm("Czy napewno chcesz usunąć tę kategorię?"))
+                return;
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Delete", "Category")",
+                data: {
+                    categoryId: categoryId
+                },
+                success: function (data) {
+                    if (data.success) {
+                        var row = btn.parentNode.parentNode;
+                        row.parentNode.removeChild(row);
+                    } else {
+                        alert(data.message);
+                    }
+                },
+                error: function (data) {
+                    alert(data.message)
+                },
+                dataType: "json"
+            });
+
+        }
+
+    </script>
+}
