@@ -6,7 +6,7 @@ namespace MyTasks.Persistence
 {
     public class UnitOfWork : IUnitOfWork
     {
-        public readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContext _context;
         public UnitOfWork(IApplicationDbContext context)
         {
             _context = context;

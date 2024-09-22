@@ -35,7 +35,7 @@ namespace MyTasks.Controllers
                 Tasks = _taskService.GetTasks(userId),
                 Categories = _categoryService.GetCategories(userId)
             };
-            return View(tasksViewModel);
+            return View(tasksViewModel);  
         }
 
 
